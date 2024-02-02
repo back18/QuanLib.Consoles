@@ -16,15 +16,24 @@ namespace QuanLib.Consoles
         private CharacterWidthMapping()
         {
             _items = [];
-            for (int i = 0; i < LENGTH; i++)
+
+            for (int i = 0; i < 32; i++)
             {
                 char c = (char)i;
-                Console.WriteLine();
-                Console.Write(c);
-                _items.Add(c, Console.CursorLeft);
+                _items.Add(c, 0);
             }
 
-            Console.WriteLine();
+            if (Console.CursorLeft > 0)
+                Console.WriteLine();
+
+            for (int i = 32; i < LENGTH; i++)
+            {
+                char c = (char)i;
+                Console.Write(c);
+                _items.Add(c, Console.CursorLeft);
+                while (Console.CursorLeft > 0)
+                    Console.Write('\b');
+            }
         }
 
         private CharacterWidthMapping(byte[] cacheBytes)
