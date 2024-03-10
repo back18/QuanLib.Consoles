@@ -1,4 +1,5 @@
 ﻿using QuanLib.Consoles.Events;
+using QuanLib.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace QuanLib.Consoles
 {
     public class ConsoleTextReader : ConsoleKeyReader
     {
-        public ConsoleTextReader()
+        public ConsoleTextReader(ILoggerGetter? loggerGetter = null) : base(loggerGetter)
         {
             _textBuffer = new(CursorPosition.Current);
 
