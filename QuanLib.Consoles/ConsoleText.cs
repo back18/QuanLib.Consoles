@@ -38,9 +38,9 @@ namespace QuanLib.Consoles
 
         public readonly static ConsoleText SpaceOfCurrentColor = new(" ", FontColor.Current);
 
-        public readonly static ConsoleText NewLineOfDefaultColor = new("\n", FontColor.Default);
+        public readonly static ConsoleText NewLineOfDefaultColor = new(Environment.NewLine, FontColor.Default);
 
-        public readonly static ConsoleText NewLineOfCurrentColor = new("\n", FontColor.Current);
+        public readonly static ConsoleText NewLineOfCurrentColor = new(Environment.NewLine, FontColor.Current);
 
         public void WriteToConsole()
         {
