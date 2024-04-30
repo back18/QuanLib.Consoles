@@ -64,13 +64,25 @@ namespace QuanLib.Consoles
                 Console.SetCursorPosition(0, Console.BufferHeight - 1);
                 for (int i = heightOffset; i < 0; i++)
                     Console.WriteLine();
-                _textBuffer.OffsetBuffer(heightOffset);
+                _textBuffer.OffsetBuffer(0, heightOffset);
             }
 
             _textBuffer.InitialPosition.Apply();
             Console.Write(_textBuffer.ToString());
 
             _textBuffer.CurrentPosition.Apply();
+        }
+
+        protected override void Initialize()
+        {
+            if (Console.CursorLeft != 0)
+            {
+                _textBuffer.OffsetBuffer(-Console.CursorLeft, 1);
+                Console.WriteLine();
+            }
+
+            ClearText();
+            WriteText();
         }
 
         protected virtual void HandleEnterKey()

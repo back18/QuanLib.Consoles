@@ -27,6 +27,8 @@ namespace QuanLib.Consoles
 
         protected override void Run()
         {
+            Initialize();
+
             while (IsRunning)
             {
                 ConsoleKeyInfo keyInfo;
@@ -48,6 +50,12 @@ namespace QuanLib.Consoles
 
                 KeyRead.Invoke(this, new(keyInfo));
             }
+        }
+
+        protected virtual void Initialize()
+        {
+            if (Console.CursorLeft != 0)
+                Console.WriteLine();
         }
     }
 }

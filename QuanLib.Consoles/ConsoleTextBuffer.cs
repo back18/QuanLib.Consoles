@@ -119,19 +119,13 @@ namespace QuanLib.Consoles
             }
 
             _cursorPositions.Add(new(x, y));
-
-            //int heightOffset = Console.BufferHeight - 1 - _cursorPositions[^1].Y;
-            //OffsetBuffer(heightOffset);
         }
 
-        public void OffsetBuffer(int heightOffset)
+        public void OffsetBuffer(int xOffset, int yOffset)
         {
-            if (heightOffset < 0)
-            {
-                InitialPosition = InitialPosition.Offset(0, heightOffset);
-                for (int i = 0; i < _cursorPositions.Count; i++)
-                    _cursorPositions[i] = _cursorPositions[i].Offset(0, heightOffset);
-            }
+            InitialPosition = InitialPosition.Offset(xOffset, yOffset);
+            for (int i = 0; i < _cursorPositions.Count; i++)
+                _cursorPositions[i] = _cursorPositions[i].Offset(xOffset, yOffset);
         }
 
         public void OffsetPosition(int indexOffset)
