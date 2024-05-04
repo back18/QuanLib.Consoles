@@ -28,7 +28,7 @@ namespace QuanLib.Consoles
             get
             {
                 if (_cursorPositions.Count == 0)
-                    return 0;
+                    return 1;
 
                 return _cursorPositions[^1].Y - _cursorPositions[0].Y + 1;
             }
@@ -121,11 +121,32 @@ namespace QuanLib.Consoles
             _cursorPositions.Add(new(x, y));
         }
 
+        public void SetInitialPosition(CursorPosition cursorPosition)
+        {
+            InitialPosition = cursorPosition;
+            Update();
+        }
+
         public void OffsetBuffer(int xOffset, int yOffset)
         {
-            InitialPosition = InitialPosition.Offset(xOffset, yOffset);
-            for (int i = 0; i < _cursorPositions.Count; i++)
-                _cursorPositions[i] = _cursorPositions[i].Offset(xOffset, yOffset);
+            SetInitialPosition(InitialPosition.Offset(xOffset, yOffset));
+        }
+
+        public void ExpressionConsoleHeight()
+        {
+            int remainingHeight = Console.BufferHeight - 1 - EndPosition.Y;
+            if (remainingHeight < 0)
+            {
+                Console.SetCursorPosition(0, Console.BufferHeight - 1);
+                for (int i = remainingHeight; i < 0; i++)
+                    Console.WriteLine();
+                OffsetBuffer(0, remainingHeight);
+            }
+        }
+
+        public void SetPosition(int index)
+        {
+            Index = Math.Clamp(index, 0, _buffer.Length);
         }
 
         public void OffsetPosition(int indexOffset)

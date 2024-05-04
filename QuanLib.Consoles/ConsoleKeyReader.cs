@@ -27,8 +27,6 @@ namespace QuanLib.Consoles
 
         protected override void Run()
         {
-            Initialize();
-
             while (IsRunning)
             {
                 ConsoleKeyInfo keyInfo;
@@ -52,7 +50,7 @@ namespace QuanLib.Consoles
             }
         }
 
-        protected virtual void Initialize()
+        protected override void OnStarted(IRunnable sender, EventArgs e)
         {
             if (Console.CursorLeft != 0)
                 Console.WriteLine();
