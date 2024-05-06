@@ -12,17 +12,29 @@ namespace QuanLib.Consoles
     {
         public ConsoleKeyReader(ILoggerGetter? loggerGetter = null) : base(loggerGetter)
         {
-            KeyRead += OnKeyRead;
+            ReadTimeSpan = 1;
             KeyEventHandler = new();
+
+            KeyRead += OnKeyRead;
+            KeyNotAvailable += OnKeyNotAvailable;
         }
+
+        public int ReadTimeSpan { get; set; }
 
         public KeyEventHandler KeyEventHandler { get; }
 
         public event EventHandler<ConsoleKeyReader, ConsoleKeyInfoEventArgs> KeyRead;
 
+        public event EventHandler<ConsoleKeyReader, EventArgs> KeyNotAvailable;
+
         protected virtual void OnKeyRead(ConsoleKeyReader sender, ConsoleKeyInfoEventArgs e)
         {
             KeyEventHandler.Invoke(KeyInfo.From(e.ConsoleKeyInfo));
+        }
+
+        protected virtual void OnKeyNotAvailable(ConsoleKeyReader sender, EventArgs e)
+        {
+
         }
 
         protected override void Run()
@@ -43,7 +55,8 @@ namespace QuanLib.Consoles
                         break;
                     }
 
-                    Thread.Sleep(1);
+                    KeyNotAvailable.Invoke(this, EventArgs.Empty);
+                    Thread.Sleep(ReadTimeSpan);
                 }
 
                 KeyRead.Invoke(this, new(keyInfo));

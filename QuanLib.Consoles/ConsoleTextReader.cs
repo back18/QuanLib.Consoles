@@ -1,5 +1,7 @@
 ﻿using QuanLib.Consoles.Events;
 using QuanLib.Core;
+using QuanLib.Core.Events;
+using QuanLib.Core.Proxys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,12 @@ namespace QuanLib.Consoles
 {
     public class ConsoleTextReader : ConsoleKeyReader
     {
+        static ConsoleTextReader()
+        {
+            ConsoleOutProxy = new(Console.Out);
+            Console.SetOut(ConsoleOutProxy);
+        }
+
         public ConsoleTextReader(ILoggerGetter? loggerGetter = null) : base(loggerGetter)
         {
             _textBuffer = new(CursorPosition.Current);
@@ -27,12 +35,36 @@ namespace QuanLib.Consoles
 
         protected readonly ConsoleTextBuffer _textBuffer;
 
+        protected static TextWriterProxy ConsoleOutProxy { get; }
+
         public string Text => _textBuffer.ToString();
 
         protected override void OnKeyRead(ConsoleKeyReader sender, ConsoleKeyInfoEventArgs e)
         {
             ClearText();
             HandleKeyEvent(e.ConsoleKeyInfo);
+            WriteText();
+        }
+
+        protected override void OnKeyNotAvailable(ConsoleKeyReader sender, EventArgs e)
+        {
+            string text = ConsoleOutProxy.GetInterceptionText();
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            ClearText();
+
+            ConsoleTextBuffer outputBuffer = new(_textBuffer.InitialPosition);
+            outputBuffer.Write(text);
+            outputBuffer.ExpressionConsoleHeight(ConsoleOutProxy.WriteOnly);
+            outputBuffer.InitialPosition.Apply();
+            ConsoleOutProxy.WriteOnly(text);
+
+            if (Console.CursorLeft != 0)
+                ConsoleOutProxy.WriteLineOnly();
+
+            _textBuffer.SetInitialPosition(CursorPosition.Current);
+
             WriteText();
         }
 
@@ -47,6 +79,14 @@ namespace QuanLib.Consoles
             _textBuffer.Write(consoleKeyInfo.KeyChar);
         }
 
+        protected virtual void WriteText()
+        {
+            _textBuffer.ExpressionConsoleHeight(ConsoleOutProxy.WriteOnly);
+            _textBuffer.InitialPosition.Apply();
+            ConsoleOutProxy.WriteOnly(_textBuffer.ToString());
+            _textBuffer.CurrentPosition.Apply();
+        }
+
         protected virtual void ClearText()
         {
             Console.CursorTop = _textBuffer.InitialPosition.Y;
@@ -54,16 +94,8 @@ namespace QuanLib.Consoles
 
             string whiteSpace = new(' ', _textBuffer.Width);
             for (int i = 0; i < _textBuffer.Height; i++)
-                Console.Write(whiteSpace);
+                ConsoleOutProxy.WriteOnly(whiteSpace);
 
-            _textBuffer.CurrentPosition.Apply();
-        }
-
-        protected virtual void WriteText()
-        {
-            _textBuffer.ExpressionConsoleHeight();
-            _textBuffer.InitialPosition.Apply();
-            Console.Write(_textBuffer.ToString());
             _textBuffer.CurrentPosition.Apply();
         }
 
@@ -72,7 +104,7 @@ namespace QuanLib.Consoles
             if (Console.CursorLeft != 0)
             {
                 _textBuffer.OffsetBuffer(-Console.CursorLeft, 1);
-                Console.WriteLine();
+                ConsoleOutProxy.WriteLineOnly();
             }
 
             _textBuffer.SetInitialPosition(CursorPosition.Current);
@@ -80,12 +112,15 @@ namespace QuanLib.Consoles
             _textBuffer.Update();
             ClearText();
             WriteText();
+
+            ConsoleOutProxy.RequestInterception = true;
         }
 
         protected override void OnStopped(IRunnable sender, EventArgs e)
         {
+            ConsoleOutProxy.RequestInterception = false;
             _textBuffer.EndPosition.Apply();
-            Console.WriteLine();
+            ConsoleOutProxy.WriteLineOnly();
         }
 
         protected virtual void HandleEnterKey()
@@ -110,7 +145,7 @@ namespace QuanLib.Consoles
 
         protected virtual void HandleControlEnterKey()
         {
-            _textBuffer.Write('\n');
+            _textBuffer.Write(Console.Out.NewLine);
         }
 
         protected virtual void HandleControlBackspaceKey()

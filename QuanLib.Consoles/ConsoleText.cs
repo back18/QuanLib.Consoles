@@ -50,10 +50,28 @@ namespace QuanLib.Consoles
             current.SetToConsole();
         }
 
+        public void WriteToConsole(Action<string> writeHandler)
+        {
+            ArgumentNullException.ThrowIfNull(writeHandler, nameof(writeHandler));
+
+            FontColor current = FontColor.Current;
+            FontColor.SetToConsole();
+            writeHandler.Invoke(Text);
+            current.SetToConsole();
+        }
+
         public void WriteLineToConsole()
         {
             WriteToConsole();
             Console.WriteLine();
+        }
+
+        public void WriteLineToConsole(Action<string> writeHandler)
+        {
+            ArgumentNullException.ThrowIfNull(writeHandler, nameof(writeHandler));
+
+            WriteToConsole(writeHandler);
+            writeHandler.Invoke(Console.Out.NewLine);
         }
 
         public static void Write(string text, FontColor fontColor)

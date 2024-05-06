@@ -144,6 +144,20 @@ namespace QuanLib.Consoles
             }
         }
 
+        public void ExpressionConsoleHeight(Action<string> writeHandler)
+        {
+            ArgumentNullException.ThrowIfNull(writeHandler, nameof(writeHandler));
+
+            int remainingHeight = Console.BufferHeight - 1 - EndPosition.Y;
+            if (remainingHeight < 0)
+            {
+                Console.SetCursorPosition(0, Console.BufferHeight - 1);
+                for (int i = remainingHeight; i < 0; i++)
+                    writeHandler.Invoke(Console.Out.NewLine);
+                OffsetBuffer(0, remainingHeight);
+            }
+        }
+
         public void SetPosition(int index)
         {
             Index = Math.Clamp(index, 0, _buffer.Length);
