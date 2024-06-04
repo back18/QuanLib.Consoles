@@ -26,14 +26,22 @@ namespace QuanLib.Consoles
             if (Console.CursorLeft > 0)
                 Console.WriteLine();
 
+            int maxWidth = 0;
             for (int i = 32; i < LENGTH; i++)
             {
                 char c = (char)i;
                 Console.Write(c);
-                _items.Add(c, Console.CursorLeft);
-                while (Console.CursorLeft > 0)
-                    Console.Write('\b');
+                int width = Console.CursorLeft;
+
+                if (width > maxWidth)
+                    maxWidth = width;
+
+                _items.Add(c, width);
+                Console.CursorLeft = 0;
             }
+
+            Console.Write(new string(' ', maxWidth));
+            Console.CursorLeft = 0;
         }
 
         private CharacterWidthMapping(byte[] cacheBytes)
