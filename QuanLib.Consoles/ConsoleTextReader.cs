@@ -145,7 +145,7 @@ namespace QuanLib.Consoles
 
         protected virtual void HandleControlEnterKey()
         {
-            _textBuffer.Write(Console.Out.NewLine);
+            _textBuffer.Write('\n');
         }
 
         protected virtual void HandleControlBackspaceKey()
