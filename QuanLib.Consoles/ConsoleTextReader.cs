@@ -1,5 +1,4 @@
-﻿using QuanLib.Consoles.Events;
-using QuanLib.Core;
+﻿using QuanLib.Core;
 using QuanLib.Core.Events;
 using QuanLib.Core.Proxys;
 using System;
@@ -39,10 +38,10 @@ namespace QuanLib.Consoles
 
         public string Text => _textBuffer.ToString();
 
-        protected override void OnKeyRead(ConsoleKeyReader sender, ConsoleKeyInfoEventArgs e)
+        protected override void OnKeyRead(ConsoleKeyReader sender, EventArgs<ConsoleKeyInfo> e)
         {
             ClearText();
-            HandleKeyEvent(e.ConsoleKeyInfo);
+            HandleKeyEvent(e.Argument);
             WriteText();
         }
 

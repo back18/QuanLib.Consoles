@@ -1,5 +1,5 @@
-﻿using QuanLib.Consoles.Events;
-using QuanLib.Core;
+﻿using QuanLib.Core;
+using QuanLib.Core.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,13 +23,13 @@ namespace QuanLib.Consoles
 
         public KeyEventHandler KeyEventHandler { get; }
 
-        public event EventHandler<ConsoleKeyReader, ConsoleKeyInfoEventArgs> KeyRead;
+        public event EventHandler<ConsoleKeyReader, EventArgs<ConsoleKeyInfo>> KeyRead;
 
         public event EventHandler<ConsoleKeyReader, EventArgs> KeyNotAvailable;
 
-        protected virtual void OnKeyRead(ConsoleKeyReader sender, ConsoleKeyInfoEventArgs e)
+        protected virtual void OnKeyRead(ConsoleKeyReader sender, EventArgs<ConsoleKeyInfo> e)
         {
-            KeyEventHandler.Invoke(KeyInfo.From(e.ConsoleKeyInfo));
+            KeyEventHandler.Invoke(KeyInfo.From(e.Argument));
         }
 
         protected virtual void OnKeyNotAvailable(ConsoleKeyReader sender, EventArgs e)
