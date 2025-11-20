@@ -9,7 +9,7 @@ namespace QuanLib.Consoles
 {
     public class ConsoleDynamicViwe : RunnableBase
     {
-        public ConsoleDynamicViwe(Func<string> updateText, int updateAccuracy, ILoggerGetter? loggerGetter = null) : base(loggerGetter)
+        public ConsoleDynamicViwe(Func<string> updateText, int updateAccuracy, ILoggerProvider? loggerProvider = null) : base(loggerProvider)
         {
             ArgumentNullException.ThrowIfNull(updateText, nameof(updateText));
             ThrowHelper.ArgumentOutOfMin(0, updateAccuracy, nameof(updateAccuracy));

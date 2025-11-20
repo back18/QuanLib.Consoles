@@ -17,7 +17,7 @@ namespace QuanLib.Consoles
             Console.SetOut(ConsoleOutProxy);
         }
 
-        public ConsoleTextReader(ILoggerGetter? loggerGetter = null) : base(loggerGetter)
+        public ConsoleTextReader(ILoggerProvider? loggerProvider = null) : base(loggerProvider)
         {
             _textBuffer = new(CursorPosition.Current);
 

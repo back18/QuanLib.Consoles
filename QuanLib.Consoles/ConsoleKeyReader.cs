@@ -10,7 +10,7 @@ namespace QuanLib.Consoles
 {
     public class ConsoleKeyReader : RunnableBase
     {
-        public ConsoleKeyReader(ILoggerGetter? loggerGetter = null) : base(loggerGetter)
+        public ConsoleKeyReader(ILoggerProvider? loggerProvider = null) : base(loggerProvider)
         {
             ReadTimeSpan = 1;
             KeyEventHandler = new();
