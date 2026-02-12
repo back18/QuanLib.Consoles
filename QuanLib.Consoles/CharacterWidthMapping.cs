@@ -1,8 +1,6 @@
 ﻿using QuanLib.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,63 +9,23 @@ namespace QuanLib.Consoles
 {
     public class CharacterWidthMapping : ISingleton<CharacterWidthMapping, CharacterWidthMapping.InstantiateArgs>
     {
-        private const int LENGTH = 65536;
-
-        private CharacterWidthMapping()
+        private CharacterWidthMapping(byte[] mapping)
         {
-            _items = [];
+            ArgumentNullException.ThrowIfNull(mapping, nameof(mapping));
+            ThrowHelper.ArrayLengthOutOfRange(65536, mapping, nameof(mapping));
 
-            for (int i = 0; i < 32; i++)
-            {
-                char c = (char)i;
-                _items.Add(c, 0);
-            }
-
-            if (Console.CursorLeft > 0)
-                Console.WriteLine();
-
-            int maxWidth = 0;
-            for (int i = 32; i < LENGTH; i++)
-            {
-                char c = (char)i;
-                Console.Write(c);
-                int width = Console.CursorLeft;
-
-                if (width > maxWidth)
-                    maxWidth = width;
-
-                _items.Add(c, width);
-                Console.CursorLeft = 0;
-            }
-
-            Console.Write(new string(' ', maxWidth));
-            Console.CursorLeft = 0;
-        }
-
-        private CharacterWidthMapping(byte[] cacheBytes)
-        {
-            ArgumentNullException.ThrowIfNull(cacheBytes, nameof(cacheBytes));
-            if (cacheBytes.Length != LENGTH)
-                throw new ArgumentException($"缓存文件尺寸不合法，应该为{LENGTH}字节");
-
-            _items = [];
-            for (int i = 0; i < LENGTH; i++)
-            {
-                char c = (char)i;
-                _items.Add(c, cacheBytes[i]);
-            }
+            _mapping = mapping;
         }
 
         private static readonly Lock _slock = new();
+        private readonly byte[] _mapping;
 
         public static bool IsInstanceLoaded => _Instance is not null;
 
         public static CharacterWidthMapping Instance => _Instance ?? throw new InvalidOperationException("实例未加载");
         private static CharacterWidthMapping? _Instance;
 
-        private readonly Dictionary<char, int> _items;
-
-        public int this[char c] => _items[c];
+        public byte this[char ch] => _mapping[ch];
 
         public static CharacterWidthMapping LoadInstance(InstantiateArgs args)
         {
@@ -78,42 +36,31 @@ namespace QuanLib.Consoles
                 if (_Instance is not null)
                     throw new InvalidOperationException("试图重复加载单例实例");
 
-                if (args.CacheBytes is null)
-                    _Instance = new();
-                else
-                    _Instance = new(args.CacheBytes);
-
+                _Instance = new(args.Mapping);
                 return _Instance;
             }
         }
 
-        public int GetWidth(char c)
+        public int GetWidth(char ch)
         {
-            return _items[c];
+            return _mapping[ch];
         }
 
-        public int GetWidth(string s)
+        public int GetWidth(string? text)
         {
-            ArgumentNullException.ThrowIfNull(s, nameof(s));
+            if (string.IsNullOrEmpty(text))
+                return 0;
 
             int width = 0;
-            foreach (char c in s)
-                width += _items[c];
+            foreach (char ch in text)
+                width += _mapping[ch];
 
             return width;
         }
 
-        public byte[] BuildCacheBytes()
+        public class InstantiateArgs(byte[] mapping) : Core.InstantiateArgs
         {
-            byte[] cacheBytes = new byte[LENGTH];
-            for (int i = 0; i < LENGTH; i++)
-                cacheBytes[i] = (byte)_items[(char)i];
-            return cacheBytes;
-        }
-
-        public class InstantiateArgs(byte[]? cacheBytes) : Core.InstantiateArgs
-        {
-            public byte[]? CacheBytes { get; } = cacheBytes;
+            public byte[] Mapping { get; } = mapping;
         }
     }
 }
