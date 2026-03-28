@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace QuanLib.Consoles
 {
-    public class CharacterWidthMapping : ISingleton<CharacterWidthMapping, CharacterWidthMapping.InstantiateArgs>
+    public class CharacterWidthMapping : ISingleton<CharacterWidthMapping>, ISingletonFactory<CharacterWidthMapping, CharacterWidthMapping.InstantiateArgs>
     {
         private CharacterWidthMapping(byte[] mapping)
         {
@@ -20,7 +20,7 @@ namespace QuanLib.Consoles
         private static readonly Lock _slock = new();
         private readonly byte[] _mapping;
 
-        public static bool IsInstanceLoaded => _Instance is not null;
+        public static bool IsLoaded => _Instance is not null;
 
         public static CharacterWidthMapping Instance => _Instance ?? throw new InvalidOperationException("实例未加载");
         private static CharacterWidthMapping? _Instance;
